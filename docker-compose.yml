@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres
+    container_name: postgres
+    restart: on-failure
+    environment: 
+      - POSTGRES_DB=blog_db
+      - POSTGRES_USER=postgres_user
+      - POSTGRES_PASSWORD=postgres_password
+    networks: 
+      - main
+    ports: 
+      - "5432:5432"
+    volumes: 
+      - ./data/postgres:/var/lib/postgresql/data
+
+networks:
+  main:
+
+volumes:
+  data:
