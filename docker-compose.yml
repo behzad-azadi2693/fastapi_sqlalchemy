@@ -13,6 +13,14 @@ services:
       - main
     ports: 
       - "5432:5432"
+    storage_opt:
+      size: 1G
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 500M
     volumes: 
       - ./data/postgres:/var/lib/postgresql/data
 
