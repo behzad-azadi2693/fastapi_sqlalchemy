@@ -1,6 +1,6 @@
 from sqlalchemy import Column, create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from dotenv import load_dotenv
 from pathlib import Path
 import os
@@ -14,7 +14,7 @@ Engine = create_engine(db)
 
 Base = declarative_base()
 
-SessionLocal = sessionmaker(engine=Engine)
+SessionLocal = sessionmaker(bind=Engine, autocommit=False, autoflush=False)
 
 def get_db():
     session = SessionLocal()
