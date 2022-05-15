@@ -1,28 +1,29 @@
 version: '3.9'
 
 services:
-  db:
-    image: postgres
-    container_name: postgres
-    restart: on-failure
-    environment: 
-      - POSTGRES_DB=blog_db
-      - POSTGRES_USER=postgres_user
-      - POSTGRES_PASSWORD=postgres_password
-    networks: 
-      - main
-    ports: 
-      - "5432:5432"
-    storage_opt:
-      size: 1G
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-        reservations:
-          memory: 500M
-    volumes: 
-      - ./data/postgres:/var/lib/postgresql/data
+    postgres:
+        image: postgres
+        container_name: ${DB_HOST}
+        restart: on-failure
+        environment: 
+            - POSTGRES_DB=${DB_NAME}
+            - POSTGRES_USER=${DB_USER}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+        networks: 
+            - main
+        ports: 
+            - "5432:5432"
+
+        deploy:
+            resources:
+                limits:
+                    cpus: 1
+                    memory: 1G
+                reservations:
+                    cpus: 0.50
+                    memory: 500M
+        volumes: 
+            - ./data/postgres:/var/lib/postgresql/data 
 
 networks:
   main:

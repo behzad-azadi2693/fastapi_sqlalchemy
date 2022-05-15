@@ -3,19 +3,14 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from pathlib import Path
-
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(BASE_DIR, '.env')
+load_dotenv(BASE_DIR/'.env')
 
-DB_ENGINE = ${DB_ENGINE}
-DB_USER = ${DB_USER}
-DB_PASSWORD = ${DB_PASSWORD}
-DB_HOST = ${DB_HOST}
-DB_DATABASE = ${DB_DATABASE}
-
-Engine = create_engine(f'{DB_ENGINE}+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_DATABASE}')
+db = f"{os.getenv('DB_ENGINE')}+psycopg2://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@localhost:5432/{os.getenv('DB_NAME')}"
+Engine = create_engine(db)
 
 Base = declarative_base()
 
