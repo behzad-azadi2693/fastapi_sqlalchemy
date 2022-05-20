@@ -1,8 +1,8 @@
-from sqlalchemy import Column, create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
-from dotenv import load_dotenv
-from pathlib import Path
+from   sqlalchemy                 import Column, create_engine
+from   sqlalchemy.ext.declarative import declarative_base
+from   sqlalchemy.orm             import sessionmaker, Session
+from   dotenv                     import load_dotenv
+from   pathlib                    import Path
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -15,6 +15,7 @@ Engine = create_engine(db)
 Base = declarative_base()
 
 SessionLocal = sessionmaker(bind=Engine, autocommit=False, autoflush=False)
+
 
 def get_db():
     session = SessionLocal()

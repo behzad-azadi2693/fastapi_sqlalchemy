@@ -6,7 +6,7 @@ from uuid import uuid4
 class Status(str, Enum):
     importanr = 'importanr'
     necessary = 'necessary'
-    usually = 'usually'
+    usually   = 'usually'
     
   
 def check_name(name, db):
@@ -14,7 +14,7 @@ def check_name(name, db):
 
     if file_name:
         pre, post = name.split('.')
-        new_name = f"{pre}-{uuid4()}.{post}"
+        new_name  = f"{pre}-{uuid4()}.{post}"
         return check_name(new_name, db)
     return name
 

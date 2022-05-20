@@ -1,19 +1,23 @@
-from fastapi import APIRouter, Path, Body, status, Depends, HTTPException, File, UploadFile, Form
-from .schema import UserBase, UserIn, UserOut, UserLogin
-from sqlalchemy.orm import Session
-from .models import UserModel
-from config.db import get_db
+from .schema         import UserBase, UserIn, UserOut, UserLogin
+from sqlalchemy.orm  import Session
+from .models         import UserModel
+from config.db       import get_db
 from passlib.context import CryptContext
-
+from fastapi         import (
+            APIRouter, Path, Body, status, Depends, 
+            HTTPException, File, UploadFile, Form
+        )
 
 router = APIRouter(prefix='/accounts', tags=['Accounts',])
 
 psw_hash = CryptContext(schemes='bcrypt', deprecated='auto')
 
+
 @router.get('/')
 async def test(file:str=Form(None)):
     return file
-    
+
+
 @router.post('/create/user/', response_model=UserOut)
 async def create_user(user:UserIn, db=Depends(get_db)):
     check_user = db.query(UserModel).filter(UserModel.username == user.username).first()
@@ -31,9 +35,11 @@ async def create_user(user:UserIn, db=Depends(get_db)):
     db.refresh(add_user)
     return user
 
+
 @router.post('/login/')
 async def login(user: UserLogin):
     pass
+
 
 @router.get('/logout/')
 async def logout():

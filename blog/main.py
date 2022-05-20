@@ -1,30 +1,31 @@
-from fastapi import (
-        APIRouter, status, Response, Query, Path, Body,
-        UploadFile, File, Depends
-    )
-from pydantic import BaseModel
-from .schema import BlogModelSchema
-from config.db import BASE_DIR, get_db
-from .models import BlogModel
+from fastapi       import (
+            APIRouter, status, Response, Query, Path, Body,
+            UploadFile, File, Depends
+        )
+from pydantic       import BaseModel
+from .schema        import BlogModelSchema
+from config.db      import BASE_DIR, get_db
+from .models        import BlogModel
 from sqlalchemy.orm import Session
-from .utils import Status, check_name
+from .utils         import Status, check_name
 
 router = APIRouter(prefix='/blog', tags=['Blog',])
 
-@router.get('/all/', status_code = status.HTTP_200_OK)
-async def blog_all(user_name:str=None, phone_number:int=None, response:Response=200, summary='get all blogs'):
-    if user_name and phone_number:
-        return {'messages':'blog all'}
 
-    response.status_code = status.HTTP_404_NOT_FOUND
-    return "False"
+@router.get('/all/', status_code = status.HTTP_200_OK)
+async def blog_all(db=Depends(get_db),response:Response=200, summary='get all blogs'):
+    blogs_list = db.query(BlogModel).filter(BlogModel.publish == 'true')
+    return blogs_list
+
 
 @router.get('/{id}/', summary='get blog')
 async def blog(id:int):
     return {'messages':f'blog {id}'}
 
+
 @router.post('/create/')
 async def create_post(status:Status, blog: BlogModelSchema=Depends(), file: UploadFile=File(...), db=Depends(get_db)):
+    
     file_name = check_name(file.filename, db)
     path_save = f'{BASE_DIR}/media/blog/{file_name}'
 
