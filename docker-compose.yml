@@ -13,20 +13,60 @@ services:
             - main
         ports: 
             - "5432:5432"
-
-        deploy:
-            resources:
-                limits:
-                    cpus: 1
-                    memory: 1G
-                reservations:
-                    cpus: 0.50
-                    memory: 500M
         volumes: 
             - ./data/postgres:/var/lib/postgresql/data 
+            
+    pgadmin:
+        image: dpage/pgadmin4
+        container_name: pgadmin
+        restart: on-failure
+        environment:
+            - PGADMIN_DEFAULT_EMAIL=a@a.com
+            - PGADMIN_DEFAULT_PASSWORD=a
+        ports:
+            - "5050:80"
+        volumes: 
+            - ./data/pgadmin:/var/lib/pgadmin/data
+        networks:
+            - main
+            
+    app:
+        image: fastapiexample_app
+        container_name: app
+        restart: on-failure
+        command: sh -c "uvicorn config.main:app --reload --host 0.0.0.0"
+        depends_on: 
+            - postgres
+        expose: 
+            - "8000"
+        networks:
+            - main
+        volumes: 
+            - .:/code/
+
+
+        
+    nginx:
+        image: nginx
+        container_name: nginx
+        command: nginx -g 'daemon off;'
+        restart: on-failure
+        depends_on:
+            - app
+        networks: 
+            - main
+        ports: 
+            - "80:80"
+        volumes: 
+            - ./nginx.conf:/etc/nginx/nginx.conf
+          
 
 networks:
   main:
 
 volumes:
+  static:
+
+  media:
+
   data:
