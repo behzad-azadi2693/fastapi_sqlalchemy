@@ -1,6 +1,6 @@
 Generic single-database configuration.
 
-change in directory alembic[
+change in directory alembic file .env[
     from config.models import Base
     from config.db import BASE_DIR
     import os
