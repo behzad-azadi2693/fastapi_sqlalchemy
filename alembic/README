@@ -1,8 +1,15 @@
 Generic single-database configuration.
 
-change this-->target_metadata in directory alembic and added Base 
+change in directory alembic[
+    from config.models import Base
+    from config.db import BASE_DIR
+    import os
+    from dotenv import load_dotenv
 
-change sqlalchemy.url in file alembic ini and placement DB_ENGINE in .env file
+    load_dotenv(os.path.join(BASE_DIR, ".env"))
+    target_metadata = [Base.metadata] 
+    config.set_main_option("sqlalchemy.url", os.getenv("DB_ENGINE"))
+]
 
 alembic init alembic
 alembic revision --autogenerate -m "<ypur_commit>"
