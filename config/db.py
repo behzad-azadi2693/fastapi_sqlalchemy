@@ -6,7 +6,7 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(BASE_DIR/'.env')
+load_dotenv(os.path.join(BASE_DIR/'.env'))
 
 Engine = create_engine(os.getenv('DB_ENGINE'))
 
