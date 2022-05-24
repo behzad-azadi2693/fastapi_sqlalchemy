@@ -1,6 +1,5 @@
 from pydantic import BaseModel, validator #EmailStr
 from fastapi  import Body, Query, Path, UploadFile, File
-from .models  import UserModel
 
 
 class UserBase(BaseModel):

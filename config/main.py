@@ -1,6 +1,7 @@
 from fastapi  import FastAPI
-from blog     import main as mainblog, models as blog_model
-from accounts import main as mainaccounts, models as account_models
+from blog     import main as mainblog
+from accounts import main as mainaccounts
+from . import models
 
 
 app = FastAPI()

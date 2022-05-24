@@ -1,6 +1,6 @@
 from .schema         import UserBase, UserIn, UserOut, UserLogin
 from sqlalchemy.orm  import Session
-from .models         import UserModel
+from config.models         import UserModel
 from config.db       import get_db
 from passlib.context import CryptContext
 from fastapi         import (

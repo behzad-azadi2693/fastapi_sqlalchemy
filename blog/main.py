@@ -1,14 +1,13 @@
-from fastapi       import (
-            APIRouter, status, Response, Query, Path, Body,
-            UploadFile, File, Depends
-        )
 from pydantic       import BaseModel
 from .schema        import BlogModelSchema
 from config.db      import BASE_DIR, get_db
-from .models        import BlogModel
+from config.models        import BlogModel
 from sqlalchemy.orm import Session
 from .utils         import Status, check_name
-
+from fastapi        import (
+            APIRouter, status, Response, Query, Path, Body,
+            UploadFile, File, Depends
+        )
 router = APIRouter(prefix='/blog', tags=['Blog',])
 
 

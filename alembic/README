@@ -1,0 +1,9 @@
+Generic single-database configuration.
+
+change this-->target_metadata in directory alembic and added Base 
+
+change sqlalchemy.url in file alembic ini and placement DB_ENGINE in .env file
+
+alembic init alembic
+alembic revision --autogenerate -m "<ypur_commit>"
+alembic upgrade head
