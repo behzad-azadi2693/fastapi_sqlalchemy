@@ -8,33 +8,42 @@ from fastapi        import (
             APIRouter, status, Response, Query, Path, Body,
             UploadFile, File, Depends
         )
+        
 router = APIRouter(prefix='/blog', tags=['Blog',])
 
 
 @router.get('/all/', status_code = status.HTTP_200_OK)
 async def blog_all(db=Depends(get_db),response:Response=200, summary='get all blogs'):
-    blogs_list = db.query(BlogModel).filter(BlogModel.publish == 'true')
+    blogs_list = db.query(BlogModel).filter(BlogModel.publish.is_(True))
     return blogs_list
 
 
 @router.get('/{id}/', summary='get blog')
 async def blog(id:int):
+
     return {'messages':f'blog {id}'}
 
 
 @router.post('/create/')
-async def create_post(status:Status, blog: BlogModelSchema=Depends(), file: UploadFile=File(...), db=Depends(get_db)):
+async def create_post(blog: BlogModelSchema=Depends(), db=Depends(get_db)):
     
-    file_name = check_name(file.filename, db)
+    file_name = check_name(blog.image.filename, db)
     path_save = f'{BASE_DIR}/media/blog/{file_name}'
 
     with open(path_save, 'wb') as f:
-        image = await file.read()
+        image = await blog.image.read()
         f.write(image)
 
     blog_object = BlogModel(
-        **blog.dict(), status=status, image = file_name
+        title = blog.title,
+        description = blog.description ,
+        phone_number = blog.phone_number ,
+        publish = blog.publish ,
+        tags = blog.tags ,
+        status = blog.status.name ,
+        image = blog.image.filename ,
     )
+
     db.add(blog_object)
     db.commit()
     db.refresh(blog_object)

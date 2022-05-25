@@ -7,6 +7,8 @@ from .db import Engine
 Base = declarative_base()
 metadata = Base.metadata
 
+
+#THIS FOR DESIGN MODELS FOR ACCOUNTS APP
 class UserModel(Base):
     __tablename__ = 'Users'
     id            = sa.Column(sa.Integer(), primary_key=True, index=True)
@@ -35,7 +37,7 @@ class ImageModel(Base):
     profile_id    = sa.Column(sa.Integer(), sa.ForeignKey('Profile.id'))
     profile       = relationship('ProfileModel', backref='images', cascade='all, delete')
 
-
+#THIS FOR DESIGN MODELS FOR BLOG APP
 class BlogModel(Base):
     __tablename__ = 'Blogs'
     id            = sa.Column(sa.Integer(), primary_key=True, index=True)
@@ -46,8 +48,8 @@ class BlogModel(Base):
     tags          = sa.Column(sa.String(255))
     status        = sa.Column(sa.String())
     image         = sa.Column(sa.String())
-    created       = sa.Column(sa.DateTime(timezone=True), server_default=func.now())
-    updated       = sa.Column(sa.DateTime(timezone=True), onupdate=func.now(), nullable=False)
+    created       = sa.Column(sa.DateTime(timezone=True), server_default=func.now(), nullable=True)
+    updated       = sa.Column(sa.DateTime(timezone=True), onupdate=func.now(), nullable=True)
     user_id       = sa.Column(sa.Integer(), sa.ForeignKey('Users.id'))
     user          = relationship('UserModel', backref='blogs')
     

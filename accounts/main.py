@@ -1,9 +1,13 @@
-from .schema         import UserBase, UserIn, UserOut, UserLogin
-from sqlalchemy.orm  import Session
-from config.models         import UserModel
-from config.db       import get_db
+from .schema import (
+            UserBase, UserIn, UserOut, UserLogin, 
+            ProfileImageSchema, ProfileModelSchema
+        )
+from sqlalchemy.orm import Session
+from config.models import UserModel
+from .utils import check_name
+from config.db import get_db
 from passlib.context import CryptContext
-from fastapi         import (
+from fastapi import (
             APIRouter, Path, Body, status, Depends, 
             HTTPException, File, UploadFile, Form
         )
@@ -11,11 +15,6 @@ from fastapi         import (
 router = APIRouter(prefix='/accounts', tags=['Accounts',])
 
 psw_hash = CryptContext(schemes='bcrypt', deprecated='auto')
-
-
-@router.get('/')
-async def test(file:str=Form(None)):
-    return file
 
 
 @router.post('/create/user/', response_model=UserOut)
@@ -44,3 +43,14 @@ async def login(user: UserLogin):
 @router.get('/logout/')
 async def logout():
     return 'ok'
+
+
+@router.post('/create/profile/{id:int}')
+def create_profile(id:int, profile:ProfileModelSchema, 
+                images:ProfileImageSchema=Depends(), db=Depends(get_db)):
+    user = db.query(exists().where(UserModel.id == id)).scalar()
+    if not user:
+        raise HTTPException(status_code=400, detail='user is not exists')
+    if images is not None:
+        for img in images:
+            pass
