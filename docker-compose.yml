@@ -56,15 +56,11 @@ services:
         ports: 
             - "80:80"
         volumes: 
-            - ./nginx.conf:/etc/nginx/nginx.conf
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf
           
 
 networks:
   main:
 
 volumes:
-  static:
-
-  media:
-
   data:
