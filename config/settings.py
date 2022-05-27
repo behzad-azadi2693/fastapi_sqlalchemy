@@ -12,6 +12,7 @@ Engine = create_engine(os.getenv('DB_ENGINE'))
 
 SessionLocal = sessionmaker(bind=Engine, autocommit=False, autoflush=False)
 
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 def get_db():
     session = SessionLocal()

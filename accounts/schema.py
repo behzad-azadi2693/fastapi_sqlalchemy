@@ -2,6 +2,19 @@ from pydantic import BaseModel, validator #EmailStr
 from fastapi  import Body, Query, Path, UploadFile, File, HTTPException, status
 
 
+class UserKey(BaseModel):
+    id: int
+    username:str
+    
+
+class UserSchema(BaseModel):
+    id: int
+    username:str
+    email:str
+    password: str
+    is_active: bool
+
+
 class UserBase(BaseModel):
     username:str = Body(..., min_length=4, max_length=250)
     email:str    = Body(..., max_length=250, regex="([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)")
@@ -42,6 +55,6 @@ class ProfileImageSchema(BaseModel):
 
     @validator('image')
     def imgae_valid(cls, v, **kwargs):
-        if v.content_type in ['image/png', 'image/jpeg', 'image/jpg']:
+        if not v.content_type in ['image/png', 'image/jpg', 'image/jpeg']:
             raise HTTPException(status_code=400, detail='image must be png, jpg, jpeg')
         return v

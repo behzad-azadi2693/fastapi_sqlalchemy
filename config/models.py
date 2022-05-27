@@ -2,7 +2,8 @@ from   sqlalchemy.orm  import relationship
 import sqlalchemy      as sa
 from   sqlalchemy      import func
 from   sqlalchemy.ext.declarative import declarative_base
-from .db import Engine
+from sqlalchemy.sql import expression
+from .settings import Engine
 
 Base = declarative_base()
 metadata = Base.metadata
@@ -44,7 +45,7 @@ class BlogModel(Base):
     title         = sa.Column(sa.String(255))
     description   = sa.Column(sa.Text())
     phone_number  = sa.Column(sa.Integer())
-    publish       = sa.Column(sa.Boolean(), default=False)
+    publish       = sa.Column(sa.Boolean(), server_default=expression.false(), nullable=True)
     tags          = sa.Column(sa.String(255))
     status        = sa.Column(sa.String())
     image         = sa.Column(sa.String())

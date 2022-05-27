@@ -1,8 +1,12 @@
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, HttpUrl, validator
 from typing import List, Dict, Optional
-from fastapi import APIRouter, status, Response, Query, Path, Body, File, UploadFile
 from .utils import Status
 from enum import Enum
+from fastapi import ( 
+            APIRouter, status, Response, Query, Path, 
+            Body, File, UploadFile, HTTPException
+        )
+
 
 class BlogModelSchema(BaseModel):
     title: str = Body(...,  min_length=8)
@@ -16,6 +20,11 @@ class BlogModelSchema(BaseModel):
     class Config:
         orm_mode = True
 
+    @validator('image')
+    def check_image(cls, v, **kwargs):
+        if not v.content_type in ['image/png', 'image/jpg', 'image/jpeg']:
+            return HTTPException(status_code=400, detail='filds must be image')
+        return v
 
 class CommentModelSchema(BaseModel):
     name: str = Body(..., mon_lengt=3)

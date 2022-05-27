@@ -6,7 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from config.models import Base
-from config.db import BASE_DIR
+from config.settings import BASE_DIR
 import os
 from dotenv import load_dotenv
 
