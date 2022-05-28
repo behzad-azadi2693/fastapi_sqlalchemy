@@ -14,6 +14,8 @@ class UserSchema(BaseModel):
     password: str
     is_active: bool
 
+    class Config:
+        orm_mode = True
 
 class UserBase(BaseModel):
     username:str = Body(..., min_length=4, max_length=250)
@@ -41,7 +43,7 @@ class UserLogin(BaseModel):
 
 
 class ProfileModelSchema(BaseModel):
-    fulname: str = Body(None) 
+    fullname: str = Body(None) 
     title: str = Body(None)
     description:str = Body(None)
     user_id:int

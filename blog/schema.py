@@ -33,3 +33,9 @@ class CommentModelSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+class blogList(BaseModel):
+    id:int
+    title:str 
+    image: str
+    create:str

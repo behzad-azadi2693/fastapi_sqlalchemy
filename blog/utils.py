@@ -9,12 +9,12 @@ class Status(str, Enum):
     usually   = 'usually'
     
   
-def check_name(name, db):
-    file_name = db.query(BlogModel).filter(BlogModel.image == name).first()
+def check_name(name, db, id):
+    file_name = db.query(BlogModel).filter(BlogModel.image == name, BlogModel.user_id == id).first()
 
     if file_name:
         pre, post = name.split('.')
         new_name  = f"{pre}-{uuid4()}.{post}"
-        return check_name(new_name, db)
+        return check_name(new_name, db, id)
     return name
 

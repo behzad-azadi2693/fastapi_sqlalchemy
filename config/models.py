@@ -24,7 +24,7 @@ class UserModel(Base):
 class ProfileModel(Base):
     __tablename__ = 'Profile'
     id            = sa.Column(sa.Integer(), primary_key=True, index=True)
-    fulname       = sa.Column(sa.String(250))
+    fullname      = sa.Column(sa.String(250))
     title         = sa.Column(sa.String(120))
     description   = sa.Column(sa.Text())
     user_id       = sa.Column(sa.Integer(), sa.ForeignKey('Users.id'))
@@ -32,11 +32,12 @@ class ProfileModel(Base):
 
 
 class ImageModel(Base):
-    __tablename__ = 'ProfileImage'
+    __tablename__ = 'Images'
     id            = sa.Column(sa.Integer(), primary_key=True, index=True)
     image         = sa.Column(sa.String())
-    profile_id    = sa.Column(sa.Integer(), sa.ForeignKey('Profile.id'))
-    profile       = relationship('ProfileModel', backref='images', cascade='all, delete')
+    user_id       = sa.Column(sa.Integer(), sa.ForeignKey('Users.id'))
+    user          = relationship('UserModel', backref='images', uselist=False, cascade='delete')
+
 
 #THIS FOR DESIGN MODELS FOR BLOG APP
 class BlogModel(Base):
