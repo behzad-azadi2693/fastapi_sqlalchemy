@@ -21,6 +21,31 @@ async def all_user(db=Depends(get_db)):
     return list_user
 
 
+@router.get('/user/information/')
+async def my_information(user:UserKey=Depends(get_current_user), db=Depends(get_db)):
+    my_user = db.query(UserModel).get(user.get('id'))
+    return my_user
+
+
+@router.get('/user/profile/')
+async def create_profile(user:UserKey=Depends(get_current_user), db=Depends(get_db)):
+    profile = db.query(ProfileModel).get(user.get('id'))
+    return profile
+
+@router.get('/profile/user/{username:str}/')
+async def profile_user(username:str=Path(...,), db=Depends(get_db)):
+    profile = db.query(ProfileModel).filter(ProfileModel.user.has(username=username)).one()
+
+    return profile
+    
+
+@router.get('/image/all/{username:str}')
+async def all_image(username:str=Path(...,), db=Depends(get_db)):
+    images = db.query(ImageModel).filter(ImageModel.user.has(username=username)).all()
+    
+    return images
+
+
 @router.post('/create/user/', response_model=UserOut)
 async def create_user( background_tasks:BackgroundTasks,user:UserIn=Depends(), db=Depends(get_db)):
     check_user = db.query(UserModel).filter(UserModel.username == user.username).first()
@@ -40,6 +65,18 @@ async def create_user( background_tasks:BackgroundTasks,user:UserIn=Depends(), d
 
     return user
 
+
+@router.post('/update/user/')
+async def update_user(information:UserBase, db=Depends(get_db), user:UserKey=Depends(get_current_user)):
+    user_is = db.query(UserModel).get(user.get('id'))
+    user_is.username = information.username, 
+    user_is.email = information.email
+    db.commit()
+
+    if user.get('username') != user_is.username:
+        os.rename(os.path.join(BASE_DIR, 'media', user.get('username')), os.path.join(BASE_DIR, 'media', user_is.username))
+
+    return information
 
 @router.post('/login/')
 async def login(data:OAuth2PasswordRequestForm=Depends(), db=Depends(get_db)):
@@ -61,37 +98,6 @@ async def login(data:OAuth2PasswordRequestForm=Depends(), db=Depends(get_db)):
 
 
     return {'access_token': access_token, 'token_type': 'bearer'}
-
-
-@router.delete('/remove/user/')
-async def remove_user(db=Depends(get_db), user:UserKey=Depends(get_current_user)):
-    user_is = db.query(UserModel).filter(UserModel.id == user.get('id')).one()
-    db.delete(user_is)
-    db.commit()
-    shutil.rmtree(os.path.join(BASE_DIR, 'media', user.get('username')))
-    return HTTPException(status_code=200, detail='user is delete')
-
-
-@router.delete('/remove/image/{id:int}/')
-async def remove_image(user:UserKey=Depends(get_current_user), db=Depends(get_db), id:int=Path(..., ge=1)):
-
-    picture = db.query(ImageModel).get(id)
-    
-    if picture:
-        db.query(ImageModel).filter(ImageModel.user_id == user.get('id'), ImageModel.id == id).delete()
-        db.commit()
-        os.remove(os.path.join(BASE_DIR, 'media', user.get('username'), 'profile', picture.image))
-        return HTTPException(status_code=400, detail='image is delete')
-    else:
-        return HTTPException(status_code=404, detail='image not found')
-
-    return 'ok'
-
-@router.get('/image/all/{username:str}')
-async def all_image(username:str=Path(...,), db=Depends(get_db)):
-    images = db.query(ImageModel).filter(ImageModel.user.has(username=username)).all()
-    
-    return images
 
 
 @router.post('/add/image/profile/')
@@ -116,18 +122,6 @@ async def add_image_profile(user: UserKey=Depends(get_current_user),image:Upload
     return new_image
 
 
-@router.get('/user/information/')
-async def my_information(user:UserKey=Depends(get_current_user), db=Depends(get_db)):
-    my_user = db.query(UserModel).get(user.get('id'))
-    return my_user
-
-
-@router.get('/user/profile/')
-async def create_profile(user:UserKey=Depends(get_current_user), db=Depends(get_db)):
-    profile = db.query(ProfileModel).get(user.get('id'))
-    return profile
-
-
 @router.put('/update/profile/')
 async def create_profile(profile:ProfileModelSchema,user:UserKey=Depends(get_current_user), db=Depends(get_db)):
     
@@ -140,8 +134,27 @@ async def create_profile(profile:ProfileModelSchema,user:UserKey=Depends(get_cur
     return new_profile
 
 
-@router.get('/profile/user/{username:str}/')
-async def profile_user(username:str=Path(...,), db=Depends(get_db)):
-    profile = db.query(ProfileModel).filter(ProfileModel.user.has(username=username)).one()
 
-    return profile
+
+@router.delete('/remove/user/')
+async def remove_user(db=Depends(get_db), user:UserKey=Depends(get_current_user)):
+    user_is = db.query(UserModel).filter(UserModel.id == user.get('id')).one()
+    db.delete(user_is)
+    db.commit()
+    shutil.rmtree(os.path.join(BASE_DIR, 'media', user.get('username')))
+    return HTTPException(status_code=200, detail='user is delete')
+
+
+@router.delete('/remove/image/{id:int}/')
+async def remove_image(user:UserKey=Depends(get_current_user), db=Depends(get_db), id:int=Path(..., ge=1)):
+
+    picture = db.query(ImageModel).get(id)
+    
+    if picture:
+        db.query(ImageModel).filter(ImageModel.user_id == user.get('id'), ImageModel.id == id).delete()
+        db.commit()
+        os.remove(os.path.join(BASE_DIR, 'media', user.get('username'), 'profile', picture.image))
+        return HTTPException(status_code=400, detail='image is delete')
+    else:
+        return HTTPException(status_code=404, detail='image not found')
+

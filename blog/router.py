@@ -31,6 +31,30 @@ async def blog(id:int, db=Depends(get_db)):
     return HTTPException(status_code=404, detail=f'blog with id {id} dos not existe')
 
 
+@router.get('/my/blog/list/', response_model_include=['id', 'title'])
+async def blogs_user(db=Depends(get_db),user: UserKey=Depends(get_current_user), summary='get all blogs'):
+    blogs_user = db.query(BlogModel).filter(BlogModel.user_id == user.get('id')).all()
+    
+    return blogs_user
+
+
+@router.get('/for/{username:str}/', response_model_exclude={'id'})
+async def blog_for(username:str=Path(...,), db=Depends(get_db)):
+    user = db.query(exists().where(UserModel.username == username)).scalar()
+    if user:
+        blog = db.query(BlogModel).filter(BlogModel.user.has(username = username)).all()
+        return blog
+    
+    return HTTPException(status_code=400, detail='user is not exist')
+
+
+@router.get('/all/comment/')
+async def all_comment(db=Depends(get_db)):
+    all = db.query(CommentBlogModel).all()
+    return all
+
+
+
 @router.post('/create/')
 async def create_blog(blog: BlogModelSchema=Depends(), user: UserKey=Depends(get_current_user), db=Depends(get_db)):
     
@@ -58,36 +82,6 @@ async def create_blog(blog: BlogModelSchema=Depends(), user: UserKey=Depends(get
     
     return blog_object
 
-@router.delete('/delete/{id:int}')
-async def delete_blog(id:int, user: UserKey=Depends(get_current_user), db=Depends(get_db)):
-    #blog_exists = db.query(exists().where(BlogModel.id == id)).scalar()
-    blog_exists = db.query(BlogModel).filter(BlogModel.id == id, BlogModel.user_id == user.get('id')).first()
-    if blog_exists:
-            blog = db.query(BlogModel).get(id)
-            db.delete(blog)
-            db.commit()
-            os.remove(os.path.join(BASE_DIR, 'media' , user.get('username'), 'blog', blog_exists.image))
-            return {'messages: ', f'blog with id {id} is deleted'}
-    
-    return HTTPException(status_code=404, detail='Blog Is Not Found')
-
-
-@router.get('/my/blog/list/', response_model_include=['id', 'title'])
-async def blogs_user(db=Depends(get_db),user: UserKey=Depends(get_current_user), summary='get all blogs'):
-    blogs_user = db.query(BlogModel).filter(BlogModel.user_id == user.get('id')).all()
-    
-    return blogs_user
-
-
-@router.get('/for/{username:str}/', response_model_exclude={'id'})
-async def blog_for(username:str=Path(...,), db=Depends(get_db)):
-    user = db.query(exists().where(UserModel.username == username)).scalar()
-    if user:
-        blog = db.query(BlogModel).filter(BlogModel.user.has(username = username)).all()
-        return blog
-    
-    return HTTPException(status_code=400, detail='user is not exist')
-
 
 @router.post('/comment/create/{id:int}/')
 async def comment_create(comment:CommentModelSchema, db=Depends(get_db),id:int=Path(...)):
@@ -110,7 +104,29 @@ async def comment_create(comment:CommentModelSchema, db=Depends(get_db),id:int=P
     return comment
 
 
-@router.get('/all/comment/')
-async def all_comment(db=Depends(get_db)):
-    all = db.query(CommentBlogModel).all()
-    return all
+@router.put('/update/blog/{id:int}')
+async def blog_update(id:int, blog:BlogModelSchema, db=Depends(get_db),user:UserKey=Depends(get_current_user)):
+    blog_is = db.query(BlogModel).filter(BlogModel.id == id, BlogModel.user_id == user.get('id')).one()
+    '''
+    if blog_is:
+        blog_is. = blog. ,
+        blog_is. = blog. ,
+        blog_is. = blog. ,
+        blog_is. = blog. ,
+        blog_is. = blog. ,
+        blog_is. = blog. ,
+    '''
+    pass
+
+@router.delete('/delete/{id:int}')
+async def delete_blog(id:int, user: UserKey=Depends(get_current_user), db=Depends(get_db)):
+    #blog_exists = db.query(exists().where(BlogModel.id == id)).scalar()
+    blog_exists = db.query(BlogModel).filter(BlogModel.id == id, BlogModel.user_id == user.get('id')).first()
+    if blog_exists:
+            blog = db.query(BlogModel).get(id)
+            db.delete(blog)
+            db.commit()
+            os.remove(os.path.join(BASE_DIR, 'media' , user.get('username'), 'blog', blog_exists.image))
+            return {'messages: ', f'blog with id {id} is deleted'}
+    
+    return HTTPException(status_code=404, detail='Blog Is Not Found')

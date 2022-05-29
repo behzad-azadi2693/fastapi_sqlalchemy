@@ -1,10 +1,10 @@
 from fastapi  import FastAPI
-from blog     import main as mainblog
-from accounts import main as mainaccounts
+from blog     import router as routerBlog
+from accounts import router as routerAccounts
 from . import models
 
 
 app = FastAPI()
-app.include_router(mainaccounts.router)
-app.include_router(mainblog.router)
+app.include_router(routerAccounts.router)
+app.include_router(routerBlog.router)
 
