@@ -46,7 +46,6 @@ class ProfileModelSchema(BaseModel):
     fullname: str = Body(None) 
     title: str = Body(None)
     description:str = Body(None)
-    user_id:int
 
     class Config:
         orm_mode = True

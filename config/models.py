@@ -1,4 +1,4 @@
-from   sqlalchemy.orm  import relationship
+from   sqlalchemy.orm  import relationship, backref
 import sqlalchemy      as sa
 from   sqlalchemy      import func
 from   sqlalchemy.ext.declarative import declarative_base
@@ -28,7 +28,7 @@ class ProfileModel(Base):
     title         = sa.Column(sa.String(120))
     description   = sa.Column(sa.Text())
     user_id       = sa.Column(sa.Integer(), sa.ForeignKey('Users.id'))
-    user          = relationship('UserModel', backref='profile', uselist=False, cascade='delete')
+    user          = relationship('UserModel', backref=backref('profile', cascade='all,delete-orphan'), uselist=False)
 
 
 class ImageModel(Base):
@@ -36,7 +36,7 @@ class ImageModel(Base):
     id            = sa.Column(sa.Integer(), primary_key=True, index=True)
     image         = sa.Column(sa.String())
     user_id       = sa.Column(sa.Integer(), sa.ForeignKey('Users.id'))
-    user          = relationship('UserModel', backref='images', uselist=False, cascade='delete')
+    user          = relationship('UserModel', backref=backref('image', cascade='all,delete-orphan'), uselist=False)
 
 
 #THIS FOR DESIGN MODELS FOR BLOG APP
@@ -53,7 +53,7 @@ class BlogModel(Base):
     created       = sa.Column(sa.DateTime(timezone=True), server_default=func.now(), nullable=True)
     updated       = sa.Column(sa.DateTime(timezone=True), onupdate=func.now(), nullable=True)
     user_id       = sa.Column(sa.Integer(), sa.ForeignKey('Users.id'))
-    user          = relationship('UserModel', backref='blogs')
+    user          = relationship('UserModel', backref=backref('blogs', cascade="all,delete-orphan"))
     
 
 class CommentBlogModel(Base):
@@ -63,6 +63,6 @@ class CommentBlogModel(Base):
     email         = sa.Column(sa.String(250))
     messages      = sa.Column(sa.Text())
     blog_id       = sa.Column(sa.Integer(), sa.ForeignKey('Blogs.id'))
-    blog          = relationship('BlogModel', backref='comments', cascade='delete')
+    blog          = relationship('BlogModel', backref=backref('comments', cascade='all,delete-orphan'))
 
 Base.metadata.create_all(Engine)

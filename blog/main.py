@@ -11,7 +11,7 @@ from accounts.utils import oauth2_schema, get_current_user
 from typing import List, Optional
 from fastapi import (
             APIRouter, status, Response, Query, Path, Body,
-            UploadFile, File, Depends, HTTPException
+            UploadFile, File, Depends, HTTPException, BackgroundTasks
         )
         
 router = APIRouter(prefix='/blog', tags=['Blog',])
@@ -63,9 +63,10 @@ async def delete_blog(id:int, user: UserKey=Depends(get_current_user), db=Depend
     #blog_exists = db.query(exists().where(BlogModel.id == id)).scalar()
     blog_exists = db.query(BlogModel).filter(BlogModel.id == id, BlogModel.user_id == user.get('id')).first()
     if blog_exists:
-            db.query(BlogModel).filter(BlogModel.id == id).delete()
+            blog = db.query(BlogModel).get(id)
+            db.delete(blog)
             db.commit()
-
+            os.remove(os.path.join(BASE_DIR, 'media' , user.get('username'), 'blog', blog_exists.image))
             return {'messages: ', f'blog with id {id} is deleted'}
     
     return HTTPException(status_code=404, detail='Blog Is Not Found')
@@ -106,4 +107,10 @@ async def comment_create(comment:CommentModelSchema, db=Depends(get_db),id:int=P
     db.commit()
     db.refresh(new_comment)
 
-    return new_comment
+    return comment
+
+
+@router.get('/all/comment/')
+async def all_comment(db=Depends(get_db)):
+    all = db.query(CommentBlogModel).all()
+    return all
