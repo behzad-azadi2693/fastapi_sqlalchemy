@@ -1,7 +1,7 @@
 import os
 from accounts.schema import UserKey
 from pydantic import BaseModel
-from .schema import BlogModelSchema, blogList, CommentModelSchema
+from .schema import BlogModelSchema, CommentModelSchema
 from config.settings import BASE_DIR, get_db
 from config.models import BlogModel, UserModel, CommentBlogModel
 from sqlalchemy.orm import Session
@@ -13,17 +13,19 @@ from fastapi import (
             APIRouter, status, Response, Query, Path, Body,
             UploadFile, File, Depends, HTTPException, BackgroundTasks
         )
-        
+from .response import BlogListResponse, BlogSingleResponse, BlogCreateResponse, CommentResponse
+
+
 router = APIRouter(prefix='/blog', tags=['Blog',])
 
 
-@router.get('/list/')
-async def blog_list(db=Depends(get_db), summary='get all blogs'):
+@router.get('/list/', response_model=list[BlogListResponse])
+async def blog_list(db=Depends(get_db)):
     blogs_list = db.query(BlogModel).filter(BlogModel.publish.is_(True)).all()
     return blogs_list
 
 
-@router.get('/{id}/', summary='get blog')
+@router.get('/{id}/', summary='get blog', response_model=BlogSingleResponse)
 async def blog(id:int, db=Depends(get_db)):
     blog = db.query(BlogModel).filter(BlogModel.id == id, BlogModel.publish.is_(True)).first()
     if blog is not None:
@@ -31,14 +33,14 @@ async def blog(id:int, db=Depends(get_db)):
     return HTTPException(status_code=404, detail=f'blog with id {id} dos not existe')
 
 
-@router.get('/my/blog/list/', response_model_include=['id', 'title'])
+@router.get('/my/blog/list/', response_model=list[BlogListResponse])
 async def blogs_user(db=Depends(get_db),user: UserKey=Depends(get_current_user), summary='get all blogs'):
     blogs_user = db.query(BlogModel).filter(BlogModel.user_id == user.get('id')).all()
     
     return blogs_user
 
 
-@router.get('/for/{username:str}/', response_model_exclude={'id'})
+@router.get('/for/{username:str}/', response_model=list[BlogListResponse])
 async def blog_for(username:str=Path(...,), db=Depends(get_db)):
     user = db.query(exists().where(UserModel.username == username)).scalar()
     if user:
@@ -48,14 +50,7 @@ async def blog_for(username:str=Path(...,), db=Depends(get_db)):
     return HTTPException(status_code=400, detail='user is not exist')
 
 
-@router.get('/all/comment/')
-async def all_comment(db=Depends(get_db)):
-    all = db.query(CommentBlogModel).all()
-    return all
-
-
-
-@router.post('/create/')
+@router.post('/create/', response_model=BlogCreateResponse)
 async def create_blog(blog: BlogModelSchema=Depends(), user: UserKey=Depends(get_current_user), db=Depends(get_db)):
     
     file_name = check_name(blog.image.filename, db, user.get('id'))
@@ -83,7 +78,7 @@ async def create_blog(blog: BlogModelSchema=Depends(), user: UserKey=Depends(get
     return blog_object
 
 
-@router.post('/comment/create/{id:int}/')
+@router.post('/comment/create/{id:int}/', response_model=CommentResponse)
 async def comment_create(comment:CommentModelSchema, db=Depends(get_db),id:int=Path(...)):
     blog = db.query(BlogModel).get(id)
 

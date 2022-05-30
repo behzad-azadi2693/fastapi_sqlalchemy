@@ -5,41 +5,42 @@ from .utils import check_name, psw_ctx, router, get_current_user, user_dependenc
 from config.settings import get_db, SECRET_KEY, BASE_DIR
 from sqlalchemy.sql import exists
 from fastapi.security import OAuth2PasswordRequestForm
+from .response import UserListRespone, UserRespone, ProfileResponse, ImageResponse, UserProfileResponse
 from fastapi import (
             Path, Body, status, Depends, Response, Request,
             HTTPException, File, UploadFile, Form, BackgroundTasks
         )
 from .schema import (
-            UserBase, UserIn, UserOut, UserLogin, UserSchema,
+            UserBase, UserIn, UserOut, UserLogin,
             ProfileImageSchema, ProfileModelSchema, UserKey
         )
 
 
-@router.get('/all/user/')
+@router.get('/all/user/', response_model=list[UserListRespone])
 async def all_user(db=Depends(get_db)):
     list_user = db.query(UserModel).all()
     return list_user
 
 
-@router.get('/user/information/')
+@router.get('/user/information/', response_model=UserRespone)
 async def my_information(user:UserKey=Depends(get_current_user), db=Depends(get_db)):
     my_user = db.query(UserModel).get(user.get('id'))
     return my_user
 
 
-@router.get('/user/profile/')
+@router.get('/user/profile/', response_model=ProfileResponse)
 async def create_profile(user:UserKey=Depends(get_current_user), db=Depends(get_db)):
     profile = db.query(ProfileModel).get(user.get('id'))
     return profile
 
-@router.get('/profile/user/{username:str}/')
+@router.get('/profile/user/{username:str}/', response_model=UserProfileResponse)
 async def profile_user(username:str=Path(...,), db=Depends(get_db)):
-    profile = db.query(ProfileModel).filter(ProfileModel.user.has(username=username)).one()
+    profile = db.query(UserModel).filter(UserModel.username == username).one()
 
     return profile
     
 
-@router.get('/image/all/{username:str}')
+@router.get('/image/all/{username:str}', response_model=list[ImageResponse])
 async def all_image(username:str=Path(...,), db=Depends(get_db)):
     images = db.query(ImageModel).filter(ImageModel.user.has(username=username)).all()
     
@@ -66,18 +67,6 @@ async def create_user( background_tasks:BackgroundTasks,user:UserIn=Depends(), d
     return user
 
 
-@router.post('/update/user/')
-async def update_user(information:UserBase, db=Depends(get_db), user:UserKey=Depends(get_current_user)):
-    user_is = db.query(UserModel).get(user.get('id'))
-    user_is.username = information.username, 
-    user_is.email = information.email
-    db.commit()
-
-    if user.get('username') != user_is.username:
-        os.rename(os.path.join(BASE_DIR, 'media', user.get('username')), os.path.join(BASE_DIR, 'media', user_is.username))
-
-    return information
-
 @router.post('/login/')
 async def login(data:OAuth2PasswordRequestForm=Depends(), db=Depends(get_db)):
     username = data.username
@@ -100,7 +89,7 @@ async def login(data:OAuth2PasswordRequestForm=Depends(), db=Depends(get_db)):
     return {'access_token': access_token, 'token_type': 'bearer'}
 
 
-@router.post('/add/image/profile/')
+@router.post('/add/image/profile/', response_model=ImageResponse)
 async def add_image_profile(user: UserKey=Depends(get_current_user),image:UploadFile=File(...,), db=Depends(get_db)):
 
     file_name = check_name(image.filename, db, user.get('id'))
@@ -122,16 +111,29 @@ async def add_image_profile(user: UserKey=Depends(get_current_user),image:Upload
     return new_image
 
 
-@router.put('/update/profile/')
-async def create_profile(profile:ProfileModelSchema,user:UserKey=Depends(get_current_user), db=Depends(get_db)):
-    
-    obj = db.query(ProfileModel).get(user.get('id'))
-    obj.full_name = profile.fullname,
-    obj.title = profile.title,
-    obj.description = profile.description
+@router.put('/update/user/')
+async def update_user(information:UserBase, db=Depends(get_db), user:UserKey=Depends(get_current_user)):
+    user_is = db.query(UserModel).get(user.get('id'))
+    user_is.username = information.username, 
+    user_is.email = information.email
     db.commit()
 
-    return new_profile
+    if user.get('username') != user_is.username:
+        os.rename(os.path.join(BASE_DIR, 'media', user.get('username')), os.path.join(BASE_DIR, 'media', user_is.username))
+
+    return information
+
+
+@router.put('/update/profile/', response_model=ProfileResponse)
+async def create_profile(profile:ProfileModelSchema=Depends(),user:UserKey=Depends(get_current_user), db=Depends(get_db)):
+    
+    userProfile = db.query(ProfileModel).filter(ProfileModel.user_id == user.get('id')).one()
+    userProfile.fullname = profile.fullname,
+    userProfile.title = profile.title,
+    userProfile.description = profile.description
+    db.commit()
+
+    return userProfile
 
 
 
