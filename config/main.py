@@ -1,7 +1,6 @@
 from fastapi  import FastAPI
-from blog     import router as routerBlog
-from accounts import router as routerAccounts
-from . import models
+from blog     import router as routerBlog, models as blogmodels
+from accounts import router as routerAccounts, models as accountsmodels
 
 
 app = FastAPI()

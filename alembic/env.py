@@ -5,9 +5,8 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from config.models import Base
-from config.settings import BASE_DIR
 import os
+from config.settings import Base, BASE_DIR
 from dotenv import load_dotenv
 
 # this is the Alembic Config object, which provides

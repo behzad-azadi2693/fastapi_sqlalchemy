@@ -1,6 +1,6 @@
 import jwt, os, shutil
 from sqlalchemy.orm import Session
-from config.models import UserModel, ImageModel, ProfileModel
+from .models import UserModel, ImageModel, ProfileModel
 from .utils import check_name, psw_ctx, router, get_current_user, user_dependency
 from config.settings import get_db, SECRET_KEY, BASE_DIR
 from sqlalchemy.sql import exists

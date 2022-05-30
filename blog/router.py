@@ -3,7 +3,8 @@ from accounts.schema import UserKey
 from pydantic import BaseModel
 from .schema import BlogModelSchema, CommentModelSchema
 from config.settings import BASE_DIR, get_db
-from config.models import BlogModel, UserModel, CommentBlogModel
+from .models import BlogModel, CommentBlogModel
+from accounts.models import UserModel
 from sqlalchemy.orm import Session
 from .utils import Status, check_name
 from sqlalchemy.sql import exists

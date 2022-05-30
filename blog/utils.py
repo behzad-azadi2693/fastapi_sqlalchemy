@@ -1,5 +1,5 @@
 from enum import Enum
-from config.models import BlogModel
+from .models import BlogModel
 from uuid import uuid4
 
 

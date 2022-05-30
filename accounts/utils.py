@@ -1,5 +1,5 @@
 import jwt, os
-from config.models import ImageModel, UserModel, ProfileModel
+from .models import ImageModel, UserModel, ProfileModel
 from config.settings import get_db, SECRET_KEY, BASE_DIR
 from uuid import uuid4
 from passlib.context import CryptContext
