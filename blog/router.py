@@ -10,6 +10,7 @@ from .utils import Status, check_name
 from sqlalchemy.sql import exists
 from accounts.utils import oauth2_schema, get_current_user
 from typing import List, Optional
+from fastapi.responses import JSONResponse
 from fastapi import (
             APIRouter, status, Response, Query, Path, Body,
             UploadFile, File, Depends, HTTPException, BackgroundTasks
@@ -23,7 +24,12 @@ router = APIRouter(prefix='/blog', tags=['Blog',])
 @router.get('/list/', response_model=list[BlogListResponse])
 async def blog_list(db=Depends(get_db)):
     blogs_list = db.query(BlogModel).filter(BlogModel.publish.is_(True)).all()
-    return blogs_list
+
+    if blogs_list:
+        return blogs_list
+
+    else:
+        return JSONResponse(status_code=404, content='not found eny object')
 
 
 @router.get('/{id}/', summary='get blog', response_model=BlogSingleResponse)
@@ -37,9 +43,10 @@ async def blog(id:int, db=Depends(get_db)):
 @router.get('/my/blog/list/', response_model=list[BlogListResponse])
 async def blogs_user(db=Depends(get_db),user: UserKey=Depends(get_current_user), summary='get all blogs'):
     blogs_user = db.query(BlogModel).filter(BlogModel.user_id == user.get('id')).all()
-    
-    return blogs_user
+    if blog_user:
+        return blogs_user
 
+    return JSONResponse(status_code=404, content='not eny query')
 
 @router.get('/for/{username:str}/', response_model=list[BlogListResponse])
 async def blog_for(username:str=Path(...,), db=Depends(get_db)):

@@ -5,6 +5,7 @@ from .utils import check_name, psw_ctx, router, get_current_user, user_dependenc
 from config.settings import get_db, SECRET_KEY, BASE_DIR
 from sqlalchemy.sql import exists
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.responses import JSONResponse
 from .response import UserListRespone, UserRespone, ProfileResponse, ImageResponse, UserProfileResponse
 from fastapi import (
             Path, Body, status, Depends, Response, Request,
@@ -35,16 +36,11 @@ async def create_profile(user:UserKey=Depends(get_current_user), db=Depends(get_
 
 @router.get('/profile/user/{username:str}/', response_model=UserProfileResponse)
 async def profile_user(username:str=Path(...,), db=Depends(get_db)):
-    profile = db.query(UserModel).filter(UserModel.username == username).one()
-
-    return profile
-    
-
-@router.get('/image/all/{username:str}', response_model=list[ImageResponse])
-async def all_image(username:str=Path(...,), db=Depends(get_db)):
-    images = db.query(ImageModel).filter(ImageModel.user.has(username=username)).all()
-    
-    return images
+    profile = db.query(UserModel).filter(UserModel.username == username).first()
+    if profile:
+        return profile
+    else:
+        return JSONResponse(status_code=404, content='not found user')
 
 
 @router.post('/create/user/', response_model=UserOut)
