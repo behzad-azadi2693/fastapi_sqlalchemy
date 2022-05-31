@@ -37,7 +37,7 @@ async def blog(id:int, db=Depends(get_db)):
     blog = db.query(BlogModel).filter(BlogModel.id == id, BlogModel.publish.is_(True)).first()
     if blog is not None:
         return blog
-    return HTTPException(status_code=404, detail=f'blog with id {id} dos not existe')
+    return JSONResponse(status_code=404, content=f'blog with id {id} dos not existe')
 
 
 @router.get('/my/blog/list/', response_model=list[BlogListResponse])
@@ -55,7 +55,7 @@ async def blog_for(username:str=Path(...,), db=Depends(get_db)):
         blog = db.query(BlogModel).filter(BlogModel.user.has(username = username)).all()
         return blog
     
-    return HTTPException(status_code=400, detail='user is not exist')
+    return JSONResponse(status_code=400, content='user is not exist')
 
 
 @router.post('/create/', response_model=BlogCreateResponse)
@@ -91,7 +91,7 @@ async def comment_create(comment:CommentModelSchema, db=Depends(get_db),id:int=P
     blog = db.query(BlogModel).get(id)
 
     if not blog:
-        return HTTPException(status_code=404, detail='blog is not found')
+        return JSONResponse(status_code=404, content='blog is not found')
 
     new_comment = CommentBlogModel(
         name = comment.name,
@@ -132,4 +132,4 @@ async def delete_blog(id:int, user: UserKey=Depends(get_current_user), db=Depend
             os.remove(os.path.join(BASE_DIR, 'media' , user.get('username'), 'blog', blog_exists.image))
             return {'messages: ', f'blog with id {id} is deleted'}
     
-    return HTTPException(status_code=404, detail='Blog Is Not Found')
+    return JSONResponse(status_code=404, content='Blog Is Not Found')

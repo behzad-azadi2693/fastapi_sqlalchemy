@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from .response import UserListRespone, UserRespone, ProfileResponse, ImageResponse, UserProfileResponse
 from fastapi import (
             Path, Body, status, Depends, Response, Request,
-            HTTPException, File, UploadFile, Form, BackgroundTasks
+            File, UploadFile, Form, BackgroundTasks
         )
 from .schema import (
             UserBase, UserIn, UserOut, UserLogin,
@@ -47,7 +47,7 @@ async def profile_user(username:str=Path(...,), db=Depends(get_db)):
 async def create_user( background_tasks:BackgroundTasks,user:UserIn=Depends(), db=Depends(get_db)):
     check_user = db.query(UserModel).filter(UserModel.username == user.username).first()
     if check_user:
-        raise HTTPException(status_code=400, detail='this user is existed')
+        raise JSONResponse(status_code=400, content='this user is existed')
 
     add_user = UserModel(
         username = user.username,
@@ -70,9 +70,9 @@ async def login(data:OAuth2PasswordRequestForm=Depends(), db=Depends(get_db)):
 
     user = db.query(UserModel).filter(UserModel.username == username).first()
     if not user:
-        raise HTTPException(status_code=400, detail='user not found')
+        raise JSONResponse(status_code=400, content='user not found')
     elif not psw_ctx.verify(password , user.password):
-        raise HTTPException(status_code=400, detail='password not correct')
+        raise JSONResponse(status_code=400, content='password not correct')
 
     user_dict = {
         'id': user.id,
@@ -140,7 +140,7 @@ async def remove_user(db=Depends(get_db), user:UserKey=Depends(get_current_user)
     db.delete(user_is)
     db.commit()
     shutil.rmtree(os.path.join(BASE_DIR, 'media', user.get('username')))
-    return HTTPException(status_code=200, detail='user is delete')
+    return JSONResponse(status_code=200, context='user is delete')
 
 
 @router.delete('/remove/image/{id:int}/')
@@ -152,7 +152,7 @@ async def remove_image(user:UserKey=Depends(get_current_user), db=Depends(get_db
         db.query(ImageModel).filter(ImageModel.user_id == user.get('id'), ImageModel.id == id).delete()
         db.commit()
         os.remove(os.path.join(BASE_DIR, 'media', user.get('username'), 'profile', picture.image))
-        return HTTPException(status_code=400, detail='image is delete')
+        return JSONResponse(status_code=400, content='image is delete')
     else:
-        return HTTPException(status_code=404, detail='image not found')
+        return JSONResponse(status_code=404, content='image not found')
 
