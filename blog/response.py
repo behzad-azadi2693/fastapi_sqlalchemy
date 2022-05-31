@@ -35,6 +35,7 @@ class BlogSingleResponse(BaseModel):
     tags:str
     status:str        
     image:str         
+    image_path:str         
     created:datetime      
     comments:list[CommentResponse]
     

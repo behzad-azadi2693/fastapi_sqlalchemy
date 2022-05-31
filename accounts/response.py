@@ -11,8 +11,8 @@ class UserListRespone(BaseModel):
 
 class ProfileResponse(BaseModel):
     fullname : str  
-    title : str
-    description : str
+    title : str | None
+    description : str | None
 
     class Config:
         orm_mode = True
@@ -20,6 +20,7 @@ class ProfileResponse(BaseModel):
 class ImageResponse(BaseModel):
     id:int
     image:str
+    image_path:str
 
     class Config:
         orm_mode = True

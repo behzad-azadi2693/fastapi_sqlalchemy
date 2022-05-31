@@ -17,6 +17,7 @@ class BlogModel(Base):
     tags          = sa.Column(sa.String(255))
     status        = sa.Column(sa.String())
     image         = sa.Column(sa.String())
+    image_path    = sa.Column(sa.String())
     created       = sa.Column(sa.DateTime(timezone=True), server_default=func.now(), nullable=True)
     updated       = sa.Column(sa.DateTime(timezone=True), onupdate=func.now(), nullable=True)
     user_id       = sa.Column(sa.Integer(), sa.ForeignKey('Users.id'))

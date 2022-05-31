@@ -76,6 +76,7 @@ async def create_blog(blog: BlogModelSchema=Depends(), user: UserKey=Depends(get
         tags = blog.tags ,
         status = blog.status.name ,
         image = blog.image.filename ,
+        image_path = path_save ,
         user_id = user.get('id')
     )
 

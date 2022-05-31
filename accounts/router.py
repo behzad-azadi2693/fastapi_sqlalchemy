@@ -97,6 +97,7 @@ async def add_image_profile(user: UserKey=Depends(get_current_user),image:Upload
 
     new_image = ImageModel(
         image = file_name ,
+        image_path = path_save ,
         user_id = user.get('id')
     )
 

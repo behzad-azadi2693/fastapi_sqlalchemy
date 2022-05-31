@@ -29,6 +29,7 @@ class ImageModel(Base):
     __tablename__ = 'Images'
     id            = sa.Column(sa.Integer(), primary_key=True, index=True)
     image         = sa.Column(sa.String())
+    image_path    = sa.Column(sa.String())
     user_id       = sa.Column(sa.Integer(), sa.ForeignKey('Users.id'))
     user          = relationship('UserModel', backref=backref('image', cascade='all,delete-orphan'), uselist=False)
 
