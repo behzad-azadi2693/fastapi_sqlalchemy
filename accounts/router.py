@@ -20,8 +20,10 @@ from .schema import (
 @router.get('/all/user/', response_model=list[UserListRespone])
 async def all_user(db=Depends(get_db)):
     list_user = db.query(UserModel).all()
-    return list_user
-
+    if list_user:
+        return list_user
+    
+    return JSONResponse(status_code=404, content='nothing found')
 
 @router.get('/user/information/', response_model=UserRespone)
 async def my_information(user:UserKey=Depends(get_current_user), db=Depends(get_db)):
