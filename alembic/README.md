@@ -1,7 +1,8 @@
 Generic single-database configuration.
 
 change in directory alembic file .env
-    from config.settings import Base, BASE_DIR
+    from config.settings import  BASE_DIR
+    from config.models import  Base
     import os
     from dotenv import load_dotenv
 
