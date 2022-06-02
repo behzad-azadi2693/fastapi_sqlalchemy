@@ -34,7 +34,9 @@ services:
         image: fastapiexample_app
         container_name: app
         restart: on-failure
-        command: sh -c "uvicorn config.main:app --reload --host 0.0.0.0"
+        command: sh -c "alembic revision --autogenerate -m 'first commit' &&
+                        alembic upgrade head &&
+                        uvicorn config.main:app --reload --host 0.0.0.0 "
         depends_on: 
             - postgres
         expose: 
