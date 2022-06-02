@@ -31,7 +31,7 @@ services:
             - main
             
     app:
-        image: fastapiexample_app
+        build: .
         container_name: app
         restart: on-failure
         command: sh -c "alembic revision --autogenerate -m 'first commit' &&
